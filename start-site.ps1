@@ -41,7 +41,7 @@ function Test-Site {
 if (-not (Test-Site)) {
     Start-Process `
         -FilePath $pnpm.Source `
-        -ArgumentList @("exec", "vinext", "dev", "--host", "0.0.0.0", "--port", "4173", "--strictPort") `
+        -ArgumentList @("exec", "vite", "--host", "0.0.0.0", "--port", "4173", "--strictPort") `
         -WorkingDirectory $projectRoot `
         -WindowStyle Hidden `
         -RedirectStandardOutput (Join-Path $projectRoot "launcher.stdout.log") `
