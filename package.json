@@ -1,5 +1,5 @@
 {
-  "name": "china-coastal-travel-guide",
+  "name": "trip-planner-miniapp",
   "version": "1.0.0",
   "private": true,
   "description": "A cinematic interactive guide for a 25-day coastal journey across China.",
@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vinext dev",
     "build": "vinext build",
+    "build:pages": "vinext build && node scripts/prepare-cloudflare-pages.mjs",
     "start": "vinext start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
@@ -26,6 +27,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
     "@vitejs/plugin-rsc": "0.5.26",
+    "esbuild": "0.27.3",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.6",
     "react-server-dom-webpack": "19.2.6",
