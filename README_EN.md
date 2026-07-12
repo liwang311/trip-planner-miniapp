@@ -1,41 +1,35 @@
-# Along the Coast: A 25-Day Journey Across China's Seaside Cities
+# Chelizi's Personal Travel Website
 
 English | [简体中文](README.md)
 
-![Along the Coast — A 25-Day Journey](public/og.png)
+![A 25-Day Journey Along China's Coast](public/og.png)
 
-This is an interactive travel-guide website with a cinematic dark visual style. It presents a 25-day, 24-night coastal journey for two people, departing from Chengdu and running from July 20 to August 13, 2026.
+An interactive personal travel guide for a 25-day, 24-night coastal journey from Chengdu, running from July 20 to August 13, 2026.
 
-The route covers Zhuhai, a Macau day trip, Chaozhou, Nan'ao Island, Shantou, Qingdao, Rongcheng, Weihai, and Yantai before returning to Chengdu by direct flight. The website combines daily itineraries, destination photography, local food, transportation, accommodation, and per-person budget estimates in one responsive experience.
+The route covers Zhuhai, Chaozhou, Nan'ao Island, Shantou, Qingdao, Rongcheng, Weihai, and Yantai, with a day trip to Macau.
 
 ## Features
 
-- A complete 25-day timeline with concise daily travel-note cards
-- Full-screen visual chapters for eight travel cities
-- Linked destination cards and city-specific daily plans
-- Interactive food photography and recommendations by city
-- Per-person budget categories, amounts, and percentage breakdowns
-- Responsive desktop and mobile layouts
-- A cinematic midnight-blue and warm-gold design system
-- A double-click Windows launcher
+- Complete 25-day itinerary and daily travel notes
+- Destination, accommodation, and transport information for eight cities
+- Six city-specific food recommendations with imagery per destination
+- Interactive city and itinerary switching
+- Visual budget cards for flights, hotels, food, trains, and attractions
+- Persistent navigation with smooth anchor scrolling
+- Responsive desktop, tablet, and mobile layouts
+- Xiaohongshu contact: `@车立子`
 
-## Route
+## Stack
 
-```text
-Chengdu → Zhuhai (Macau day trip) → Chaozhou → Nan'ao Island → Shantou
-        → Qingdao → Rongcheng → Weihai → Yantai → Chengdu
-```
+- React 19
+- TypeScript
+- Vite 8
+- Phosphor Icons
+- Tailwind CSS/PostCSS
 
-Travel dates: `2026-07-20` to `2026-08-13`
+## Local Development
 
-## Run Locally
-
-### Requirements
-
-- Node.js `>= 22.13.0`
-- pnpm (Corepack is recommended)
-
-### Install and start
+Requires Node.js `>= 22.13.0` and pnpm.
 
 ```bash
 corepack enable
@@ -43,63 +37,49 @@ pnpm install
 pnpm dev
 ```
 
-To use the same fixed local address as the project:
+Windows users can also double-click `Launch-Coastbound-China.bat`. The launcher installs missing dependencies and opens `http://localhost:4173`.
 
-```bash
-pnpm exec vinext dev --host localhost --port 4173 --strictPort
-```
-
-Then open [http://localhost:4173](http://localhost:4173).
-
-### Double-click launcher on Windows
-
-Install Node.js and make sure `pnpm` is available. Then double-click:
-
-```text
-Launch-Coastbound-China.bat
-```
-
-The launcher installs missing dependencies, starts the local server in the background, and opens the website.
-
-## Build
+## Build and Lint
 
 ```bash
 pnpm build
+pnpm lint
 ```
 
-## Project Structure
+The production build is generated in `dist/`, which is intentionally excluded from Git.
+
+## Repository Structure
 
 ```text
-.
-├─ app/                     # Page components, itinerary data, and global styles
-├─ public/assets/           # Destination, food, and hero images
-├─ build/                   # Sites/Vite build plugin
-├─ worker/                  # Cloudflare/Vinext worker entry
-├─ .openai/hosting.json     # OpenAI Sites binding declaration
-├─ design-qa.md             # Visual and interaction QA record
-├─ package.json             # Dependencies and scripts
-├─ vite.config.ts           # Vinext/Vite configuration
-└─ Launch-Coastbound-China.bat # Windows double-click launcher
+app/                 Page content, travel data, and global styles
+public/assets/       Destination, food, and hero imagery
+src/main.tsx         React browser entry
+index.html           Vite HTML entry and metadata
+vercel.json          Vercel deployment configuration
+wrangler.jsonc       Cloudflare Pages configuration
 ```
 
-## Budget Assumptions
+## GitHub
 
-- Budget figures are displayed per person.
-- Accommodation is split between two travelers sharing one room.
-- Food is estimated at CNY 200 per day for two people, or CNY 100 per person per day.
-- Flight figures include the airport construction and fuel surcharge assumed by the project.
-- All prices are reference values captured during planning and are not live or guaranteed fares.
+The folder is already a Git repository with a configured remote. Review the changes before committing:
 
-## Image and Content Notice
+```bash
+git status
+git add app public src index.html README.md README_EN.md package.json pnpm-lock.yaml vite.config.ts .gitignore
+git commit -m "Update travel site design and content"
+git push origin main
+```
 
-- Images combine authorized project assets and generated visuals and are intended for this travel-guide presentation.
-- Island ferries and marine activities depend on weather and service notices; verify them again before traveling.
-- Flight, train, hotel, attraction, and price information may change. Always confirm details on the booking page.
+Do not commit `node_modules/`, `dist/`, logs, local caches, or environment files. They are covered by `.gitignore`.
 
-## About GitHub Pages
+## Deployment
 
-This is a Vinext application rather than a single static HTML file. GitHub is suitable for storing and presenting the source code, but public hosting should use OpenAI Sites, Cloudflare Workers/Pages, or another platform that supports Node/Vite applications.
+- Cloudflare Pages: build command `pnpm run build`, output directory `dist`
+- Vercel: configured through `vercel.json`
+- GitHub Pages: relative asset paths make the production build compatible with repository subpaths
 
-## License
+See [CLOUDFLARE_PAGES.md](CLOUDFLARE_PAGES.md) for deployment details.
 
-This project is currently intended for personal trip planning and portfolio display. Before allowing reuse, add an appropriate open-source license and verify redistribution rights for all image assets.
+## Notice
+
+This repository is intended for personal travel planning and portfolio display. Verify redistribution rights for all imagery and add a suitable license before allowing public reuse.

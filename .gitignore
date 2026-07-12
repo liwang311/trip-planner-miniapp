@@ -12,6 +12,7 @@ out/
 outputs/
 work/
 coverage/
+*.tsbuildinfo
 
 # Logs
 *.log
@@ -33,4 +34,3 @@ Thumbs.db
 
 # Hosting-provider local state
 .vercel/
-

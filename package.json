@@ -11,7 +11,7 @@
     "build": "vite build",
     "build:pages": "vite build",
     "start": "vite preview",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -24,8 +24,6 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
-    "eslint": "9.39.4",
-    "eslint-config-next": "16.2.6",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
     "vite": "8.0.13",

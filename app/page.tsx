@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  AirplaneTilt,
   ArrowDown,
   ArrowLeft,
   ArrowRight,
   Bed,
+  BowlFood,
   CalendarBlank,
   Camera,
   CaretLeft,
@@ -15,6 +17,7 @@ import {
   Money,
   MoonStars,
   Train,
+  Ticket,
   UsersThree,
   Wallet,
 } from "@phosphor-icons/react";
@@ -32,6 +35,15 @@ type DayPlan = {
   schedule: { time: string; title: string; note: string }[];
 };
 
+type FoodItem = {
+  name: string;
+  description: string;
+  image: "city" | "extra";
+  crop: "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
+};
+
+const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
+
 const cities: Array<{
   key: CityKey;
   name: string;
@@ -40,18 +52,75 @@ const cities: Array<{
   nights: number;
   image: string;
   foodImage: string;
+  extraFoodImage: string;
   scenery: string;
-  foods: string[];
+  foods: FoodItem[];
   tip: string;
 }> = [
-  { key: "zhuhai", name: "珠海", en: "ZHUHAI", dates: "07.20—07.24", nights: 4, image: "/assets/city-zhuhai.png", foodImage: "/assets/food-zhuhai.png", scenery: "情侣路 · 日月贝 · 澳门一日", foods: ["横琴蚝", "广式茶点", "海鲜大排档"], tip: "澳门当天往返记得带好证件；情侣路很长，优先选择傍晚分段步行。" },
-  { key: "chaozhou", name: "潮州", en: "CHAOZHOU", dates: "07.24—07.26", nights: 2, image: "/assets/city-chaozhou.png", foodImage: "/assets/food-chaozhou.png", scenery: "广济桥 · 牌坊街 · 韩江夜色", foods: ["牛肉火锅", "潮州粿品", "生腌"], tip: "古城景点集中，步行加共享单车即可；广济桥白天登桥、晚上看灯。" },
-  { key: "nanao", name: "南澳岛", en: "NANAO ISLAND", dates: "07.26—07.28", nights: 2, image: "/assets/city-nanao.png", foodImage: "/assets/food-nanao.png", scenery: "青澳湾 · 灯塔 · 环岛海岸", foods: ["紫菜海胆饭", "海鲜砂锅粥", "清蒸海鱼"], tip: "环岛距离远，公交适合慢游；海边项目以当天风浪和停航通知为准。" },
-  { key: "shantou", name: "汕头", en: "SHANTOU", dates: "07.28—07.30", nights: 2, image: "/assets/city-shantou.png", foodImage: "/assets/food-shantou.png", scenery: "小公园 · 西堤 · 老城骑楼", foods: ["牛肉丸粿条", "蚝烙", "牛肉火锅"], tip: "小公园适合下午到夜晚连着逛；热门牛肉店错峰去，点餐按部位少量多点。" },
-  { key: "qingdao", name: "青岛", en: "QINGDAO", dates: "07.30—08.04", nights: 5, image: "/assets/city-qingdao.png", foodImage: "/assets/food-qingdao.png", scenery: "八大关 · 栈桥 · 崂山", foods: ["海肠捞饭", "鲅鱼水饺", "啤酒海鲜"], tip: "老城坡路多，穿防滑好走的鞋；崂山单独留一天，不与市区景点硬拼。" },
-  { key: "rongcheng", name: "荣成", en: "RONGCHENG", dates: "08.04—08.07", nights: 3, image: "/assets/city-rongcheng.png", foodImage: "/assets/food-rongcheng.png", scenery: "那香海 · 鸡鸣岛 · 成山头", foods: ["胶东海鲜锅", "无花果", "海草房渔家宴"], tip: "景点分散，提前组合包车或网约车；鸡鸣岛是否开航要看当天海况。" },
-  { key: "weihai", name: "威海", en: "WEIHAI", dates: "08.07—08.10", nights: 3, image: "/assets/city-weihai.png", foodImage: "/assets/food-weihai.png", scenery: "刘公岛 · 火炬八街 · 环海路", foods: ["韩乐坊烤肉", "乳山生蚝", "海鲜疙瘩汤"], tip: "火炬八街早去更清静；环海路留给晴天，刘公岛船票提前关注余量。" },
-  { key: "yantai", name: "烟台", en: "YANTAI", dates: "08.10—08.13", nights: 3, image: "/assets/city-yantai.png", foodImage: "/assets/food-yantai.png", scenery: "养马岛 · 烟台山 · 渔人码头", foods: ["蓬莱小面", "烟台焖子", "海鲜烧烤"], tip: "养马岛建议早出发避开车流；返程航班较晚，最后一天仍可安排轻量市区游。" },
+  { key: "zhuhai", name: "珠海", en: "ZHUHAI", dates: "07.20—07.24", nights: 4, image: "/assets/city-zhuhai.png", foodImage: "/assets/food-zhuhai.png", extraFoodImage: "/assets/food-extra-zhuhai.png", scenery: "情侣路 · 日月贝 · 澳门一日", foods: [
+    { name: "横琴蚝", description: "蒜香一掀盖就扑过来，肥厚爆汁，海边第一口就被拿捏。", image: "city", crop: "left" },
+    { name: "广式茶点", description: "虾饺透亮、烧卖弹牙，睡醒慢悠悠吃一笼最有度假感。", image: "city", crop: "right" },
+    { name: "白蕉海鲈", description: "清蒸最能吃出细嫩本味，姜葱一淋，鲜得干净又温柔。", image: "extra", crop: "top-left" },
+    { name: "斗门重壳蟹", description: "双层蟹壳藏着丰腴膏脂，肉质清甜，是珠海限定的鲜。", image: "extra", crop: "top-right" },
+    { name: "金湾大海虾", description: "蒜蓉粉丝吸饱虾汁，鲜香弹牙，上桌就是整桌焦点。", image: "extra", crop: "bottom-left" },
+    { name: "黄沙蚬", description: "姜葱快炒保留清甜，壳薄肉嫩，越简单越考验新鲜度。", image: "extra", crop: "bottom-right" },
+  ], tip: "澳门当天往返记得带好证件；情侣路很长，优先选择傍晚分段步行。" },
+  { key: "chaozhou", name: "潮州", en: "CHAOZHOU", dates: "07.24—07.26", nights: 2, image: "/assets/city-chaozhou.png", foodImage: "/assets/food-chaozhou.png", extraFoodImage: "/assets/food-extra-chaozhou.png", scenery: "广济桥 · 牌坊街 · 韩江夜色", foods: [
+    { name: "牛肉火锅", description: "鲜切牛肉涮到刚变色，蘸一口沙茶，嫩得让人立刻加盘。", image: "city", crop: "left" },
+    { name: "潮州粿品", description: "咸甜软糯一桌开盲盒，逛牌坊街一定要留胃多尝几样。", image: "city", crop: "right" },
+    { name: "潮州卤鹅", description: "鹅肉咸香入骨、卤汁醇厚，配蒜泥醋一口就懂潮州。", image: "extra", crop: "top-left" },
+    { name: "潮汕生腌", description: "鲜甜里带蒜香微辣，冰凉爽口，是夜宵桌上的鲜味炸弹。", image: "extra", crop: "top-right" },
+    { name: "鸭母捻", description: "软糯汤圆泡在清甜姜汤里，逛完古城来一碗刚刚好。", image: "extra", crop: "bottom-left" },
+    { name: "砂锅粥", description: "虾蟹鲜味熬进每一粒米，热气腾腾，深夜吃尤其治愈。", image: "extra", crop: "bottom-right" },
+  ], tip: "古城景点集中，步行加共享单车即可；广济桥白天登桥、晚上看灯。" },
+  { key: "nanao", name: "南澳岛", en: "NANAO ISLAND", dates: "07.26—07.28", nights: 2, image: "/assets/city-nanao.png", foodImage: "/assets/food-nanao.png", extraFoodImage: "/assets/food-extra-nanao.png", scenery: "青澳湾 · 灯塔 · 环岛海岸", foods: [
+    { name: "紫菜海胆饭", description: "海胆鲜甜、紫菜脆香，拌开的每一口都是南澳岛的海。", image: "city", crop: "left" },
+    { name: "海鲜砂锅粥", description: "米粒熬到开花，鲜虾和蟹的甜全进粥里，暖胃又治愈。", image: "city", crop: "right" },
+    { name: "白灼宅鱿", description: "刚熟的鱿鱼脆嫩弹牙，蘸点普宁豆酱就是海岛原味。", image: "extra", crop: "top-left" },
+    { name: "紫菜炒饭", description: "头水紫菜香气浓郁，和米饭炒到粒粒分明，越嚼越鲜。", image: "extra", crop: "top-right" },
+    { name: "南澳金薯", description: "沙土地养出的金薯松软流蜜，掰开就是暖橙色的小惊喜。", image: "extra", crop: "bottom-left" },
+    { name: "海石花", description: "晶莹滑嫩、冰凉清爽，加一点柑橘，是环岛后的解暑神器。", image: "extra", crop: "bottom-right" },
+  ], tip: "环岛距离远，公交适合慢游；海边项目以当天风浪和停航通知为准。" },
+  { key: "shantou", name: "汕头", en: "SHANTOU", dates: "07.28—07.30", nights: 2, image: "/assets/city-shantou.png", foodImage: "/assets/food-shantou.png", extraFoodImage: "/assets/food-extra-shantou.png", scenery: "小公园 · 西堤 · 老城骑楼", foods: [
+    { name: "牛肉丸粿条", description: "手打牛肉丸一口爆汁，清汤却鲜得很有存在感。", image: "city", crop: "left" },
+    { name: "蚝烙", description: "边缘焦脆、内里软嫩，蚝仔铺得满满当当才叫过瘾。", image: "city", crop: "right" },
+    { name: "潮汕生腌", description: "蟹虾吸满蒜辣酱汁，鲜甜上头，喜欢生腌的人很难拒绝。", image: "extra", crop: "top-left" },
+    { name: "潮汕肠粉", description: "薄嫩粉皮裹满肉蛋菜，酱汁一浇，是汕头早餐的灵魂。", image: "extra", crop: "top-right" },
+    { name: "甘草水果", description: "酸甜咸香一起冒出来，冰冰脆脆，逛街时一盒根本不够。", image: "extra", crop: "bottom-left" },
+    { name: "反沙芋头", description: "外层糖霜酥松、里面粉糯，甜而不腻，潮汕甜口天花板。", image: "extra", crop: "bottom-right" },
+  ], tip: "小公园适合下午到夜晚连着逛；热门牛肉店错峰去，点餐按部位少量多点。" },
+  { key: "qingdao", name: "青岛", en: "QINGDAO", dates: "07.30—08.04", nights: 5, image: "/assets/city-qingdao.png", foodImage: "/assets/food-qingdao.png", extraFoodImage: "/assets/food-extra-qingdao.png", scenery: "八大关 · 栈桥 · 崂山", foods: [
+    { name: "海肠捞饭", description: "脆嫩海肠裹着浓汁拌米饭，鲜香到最后一粒都舍不得剩。", image: "city", crop: "left" },
+    { name: "鲅鱼水饺", description: "皮薄馅大、鱼肉细嫩，咬开是一口很温柔的海鲜味。", image: "city", crop: "right" },
+    { name: "辣炒蛤蜊", description: "青岛啤酒的最佳搭子，微辣鲜甜，夏夜越吃越有劲。", image: "extra", crop: "top-left" },
+    { name: "排骨米饭", description: "排骨酱香软烂、汤汁拌饭，朴实却是青岛人的日常底味。", image: "extra", crop: "top-right" },
+    { name: "海菜凉粉", description: "清透爽滑带淡淡海味，蒜醋汁一拌，夏天吃特别清爽。", image: "extra", crop: "bottom-left" },
+    { name: "烤鱿鱼", description: "炭火焦香混着孜然辣椒，边走边吃才是台东夜市正确打开方式。", image: "extra", crop: "bottom-right" },
+  ], tip: "老城坡路多，穿防滑好走的鞋；崂山单独留一天，不与市区景点硬拼。" },
+  { key: "rongcheng", name: "荣成", en: "RONGCHENG", dates: "08.04—08.07", nights: 3, image: "/assets/city-rongcheng.png", foodImage: "/assets/food-rongcheng.png", extraFoodImage: "/assets/food-extra-rongcheng.png", scenery: "那香海 · 鸡鸣岛 · 成山头", foods: [
+    { name: "胶东海鲜锅", description: "一锅端上来全是硬货，原汁原味吃出渔港的豪爽。", image: "city", crop: "left" },
+    { name: "海草房渔家宴", description: "家常做法不花哨，新鲜海货配大饼就是踏实的满足。", image: "city", crop: "right" },
+    { name: "鲅鱼水饺", description: "鲅鱼馅鲜嫩蓬松，一口咬开全是海味，却一点都不腥。", image: "extra", crop: "top-left" },
+    { name: "海菜包子", description: "暄软面皮裹着鲜香海菜，胶东渔家味道朴素又踏实。", image: "extra", crop: "top-right" },
+    { name: "盛家火烧", description: "一面酥脆一面柔软，层层麦香，是荣成老字号的实在好味。", image: "extra", crop: "bottom-left" },
+    { name: "荣成无花果", description: "熟透后软糯如蜜，切开是漂亮红心，夏末遇到一定要尝。", image: "extra", crop: "bottom-right" },
+  ], tip: "景点分散，提前组合包车或网约车；鸡鸣岛是否开航要看当天海况。" },
+  { key: "weihai", name: "威海", en: "WEIHAI", dates: "08.07—08.10", nights: 3, image: "/assets/city-weihai.png", foodImage: "/assets/food-weihai.png", extraFoodImage: "/assets/food-extra-weihai.png", scenery: "刘公岛 · 火炬八街 · 环海路", foods: [
+    { name: "韩乐坊烤肉", description: "烤肉滋滋冒油，卷生菜再配小菜，逛完夜市吃最快乐。", image: "city", crop: "left" },
+    { name: "乳山生蚝", description: "个头扎实、入口奶香，简单蒸熟就鲜得很有底气。", image: "city", crop: "right" },
+    { name: "海菜蒸包", description: "面皮暄软、海菜馅鲜润，是威海人从小吃到大的家常味。", image: "extra", crop: "top-left" },
+    { name: "墨鱼水饺", description: "黑亮饺子皮自带海洋感，墨鱼馅脆嫩，拍照和味道都在线。", image: "extra", crop: "top-right" },
+    { name: "胶东花饽饽", description: "像艺术品一样的面食，松软微甜，节庆氛围感直接拉满。", image: "extra", crop: "bottom-left" },
+    { name: "威海喜饼", description: "外皮金黄、麦香奶香交织，随手带一块做环海路补给。", image: "extra", crop: "bottom-right" },
+  ], tip: "火炬八街早去更清静；环海路留给晴天，刘公岛船票提前关注余量。" },
+  { key: "yantai", name: "烟台", en: "YANTAI", dates: "08.10—08.13", nights: 3, image: "/assets/city-yantai.png", foodImage: "/assets/food-yantai.png", extraFoodImage: "/assets/food-extra-yantai.png", scenery: "养马岛 · 烟台山 · 渔人码头", foods: [
+    { name: "蓬莱小面", description: "细面滑溜、海鲜卤鲜亮，早起吃一碗整个人都舒展。", image: "city", crop: "left" },
+    { name: "烟台焖子", description: "外焦里糯，麻酱蒜汁浓香，是路边摊里低调的宝藏。", image: "city", crop: "right" },
+    { name: "福山大面", description: "手擀宽面筋道顺滑，海鲜清汤鲜而不重，早晨来一碗很舒服。", image: "extra", crop: "top-left" },
+    { name: "海肠捞饭", description: "海肠脆嫩、酱汁浓郁，拌上米饭以后鲜味层层往上叠。", image: "extra", crop: "top-right" },
+    { name: "油爆海螺", description: "大火快爆保留爽脆，葱香裹住海螺片，是经典胶东硬菜。", image: "extra", crop: "bottom-left" },
+    { name: "烟台大樱桃", description: "盛夏果肉脆甜多汁，红得发亮，旅行路上清爽又解馋。", image: "extra", crop: "bottom-right" },
+  ], tip: "养马岛建议早出发避开车流；返程航班较晚，最后一天仍可安排轻量市区游。" },
 ];
 
 const days: DayPlan[] = [
@@ -134,15 +203,23 @@ const days: DayPlan[] = [
 
 const budgetRows = [
   { label: "机票", amount: 2640, note: "三段直飞，已含机建燃油" },
-  { label: "酒店", amount: 4732, note: "24晚，两人合住一间后的人均" },
-  { label: "餐饮", amount: 2500, note: "每天两人¥200，折合人均¥100" },
-  { label: "动车与城际交通", amount: 387, note: "主要动车票人均" },
+  { label: "酒店", amount: 4732, note: "24晚，根据携程搜集" },
+  { label: "餐饮", amount: 2500, note: "按100元/人·天计算" },
+  { label: "动车与城际交通", amount: 387, note: "根据12306搜集" },
   { label: "景点与船票", amount: 559, note: "基础门票及已列船票" },
 ];
 const perPersonBudget = budgetRows.reduce((total, item) => total + item.amount, 0);
 
 function CityImage({ city, className = "" }: { city: (typeof cities)[number]; className?: string }) {
-  return <img className={className} src={city.image} alt={`${city.name}：${city.scenery}`} />;
+  return <img className={className} src={assetUrl(city.image)} alt={`${city.name}：${city.scenery}`} />;
+}
+
+function BudgetIcon({ label, size = 27 }: { label: string; size?: number }) {
+  if (label === "机票") return <AirplaneTilt size={size} weight="duotone" />;
+  if (label === "酒店") return <Bed size={size} weight="duotone" />;
+  if (label === "餐饮") return <BowlFood size={size} weight="duotone" />;
+  if (label.includes("交通")) return <Train size={size} weight="duotone" />;
+  return <Ticket size={size} weight="duotone" />;
 }
 
 export default function Home() {
@@ -174,21 +251,21 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="午夜海岸线首页">
+        <a className="brand" href="#top" aria-label="车立子的个人旅游网站首页">
           <Compass size={28} weight="duotone" aria-hidden="true" />
-          <span><strong>午夜海岸线</strong><small>MIDNIGHT COASTLINE</small></span>
+          <span><strong>车立子的个人旅游网站</strong><small>CHELIZI · PERSONAL TRAVEL</small></span>
         </a>
         <nav aria-label="主导航">
           <a href="#itinerary">每日行程</a>
-          <a href="#destinations">目的地</a>
-          <a href="#food">美食</a>
-          <a href="#budget">预算</a>
+          <a href="#destinations">城市行程</a>
+          <a href="#food">必吃美食</a>
+          <a href="#budget">旅行预算</a>
         </nav>
         <div className="trip-meta"><CalendarBlank size={18} /><span>2026.07.20</span><i /><span>25天24晚</span><i /><UsersThree size={19} /><span>2人同行</span></div>
       </header>
 
       <section id="top" className="hero" aria-labelledby="hero-title">
-        <img className="hero-image" src="/assets/hero-coast.png" alt="蓝调时刻的中国海岸城市与海面" />
+        <img className="hero-image" src={assetUrl("/assets/hero-coast.png")} alt="蓝调时刻的中国海岸城市与海面" />
         <div className="hero-shade" />
         <div className="hero-content">
           <p className="eyebrow">CHENGDU TO THE COAST · 2026</p>
@@ -235,15 +312,15 @@ export default function Home() {
             <p className="daily-route"><MapPin size={16} weight="fill" />{activeDay.schedule.map((item) => item.title).join(" → ")}</p>
             <div className="daily-note-grid">
               <p><Camera size={16} /><span><small>怎么玩</small>{activeDay.mood}</span></p>
-              <p><ForkKnife size={16} /><span><small>今天吃什么</small>主吃 {activeCity.foods[(activeDay.day - 1) % activeCity.foods.length]}，备选 {activeCity.foods[activeDay.day % activeCity.foods.length]}</span></p>
+              <p><ForkKnife size={16} /><span><small>今天吃什么</small>主吃 {activeCity.foods[(activeDay.day - 1) % activeCity.foods.length].name}，备选 {activeCity.foods[activeDay.day % activeCity.foods.length].name}</span></p>
             </div>
             <p className="daily-tip"><strong>实用贴士</strong>{activeCity.tip}</p>
           </article>
         </div>
         <div className="day-gallery">
           <figure className="main-photo"><CityImage city={activeCity} /><figcaption>{activeCity.scenery}</figcaption></figure>
-          <figure><img className="food-crop-left" src={activeCity.foodImage} alt={`${activeCity.name}${activeCity.foods[0]}`} /><figcaption>{activeCity.foods[0]}</figcaption></figure>
-          <figure><img className="food-crop-right" src={activeCity.foodImage} alt={`${activeCity.name}${activeCity.foods[1]}`} /><figcaption>{activeCity.foods[1]}</figcaption></figure>
+          <figure><img className="food-crop-left" src={assetUrl(activeCity.foodImage)} alt={`${activeCity.name}${activeCity.foods[0].name}`} /><figcaption>{activeCity.foods[0].name}</figcaption></figure>
+          <figure><img className="food-crop-right" src={assetUrl(activeCity.foodImage)} alt={`${activeCity.name}${activeCity.foods[1].name}`} /><figcaption>{activeCity.foods[1].name}</figcaption></figure>
         </div>
       </section>
 
@@ -285,26 +362,40 @@ export default function Home() {
       </section>
 
       <section id="food" className="food-section" aria-labelledby="food-title">
-        <div className="section-heading light"><p className="eyebrow">TASTE THE COAST</p><h2 id="food-title">点击城市，吃遍海岸</h2><p>当前展示：{activeCity.name}。每座城市都有自己的代表味道。</p></div>
-        <div className="food-layout">
-          <figure className="food-feature"><img src={activeCity.foodImage} alt={`${activeCity.name}特色美食：${activeCity.foods.join("、")}`} /><figcaption><small>{activeCity.name}</small><strong>{activeCity.foods[0]} · {activeCity.foods[1]}</strong><span>{activeCity.foods.join(" · ")}</span></figcaption></figure>
-          <div className="food-notes">
-            {cities.map((city) => <button className={selectedCity === city.key ? "active" : ""} key={city.key} onClick={() => setCityContent(city.key)}><span>{city.name}</span><p>{city.foods.join(" · ")}</p><ArrowRight size={18} /></button>)}
+        <div className="food-heading-row">
+          <div className="section-heading light"><p className="eyebrow">TASTE THE COAST</p><h2 id="food-title">{activeCity.name} · 六样必吃</h2><p>每座城市精选六道代表味道，配上一句出发前就会馋的觅食笔记。</p></div>
+          <div className="food-city-tabs" role="tablist" aria-label="切换城市美食">
+            {cities.map((city) => <button role="tab" aria-selected={selectedCity === city.key} className={selectedCity === city.key ? "active" : ""} key={city.key} onClick={() => setCityContent(city.key)}>{city.name}</button>)}
           </div>
+        </div>
+        <div className="food-grid">
+          {activeCity.foods.map((food, index) => (
+            <article className="food-card" key={food.name}>
+              <div className="food-card-photo">
+                <img className={`crop-${food.crop}`} src={assetUrl(food.image === "city" ? activeCity.foodImage : activeCity.extraFoodImage)} alt={`${activeCity.name}必吃美食：${food.name}`} />
+                <span>0{index + 1}</span>
+              </div>
+              <div className="food-card-copy"><small>{activeCity.name} · MUST EAT</small><h3>{food.name}</h3><p>{food.description}</p></div>
+            </article>
+          ))}
         </div>
       </section>
 
       <section id="budget" className="section-wrap budget-section" aria-labelledby="budget-title">
-        <div className="section-heading"><p className="eyebrow">PER PERSON BUDGET</p><h2 id="budget-title">一个人的旅行账单</h2><p>按人均展示；酒店已按两人合住一间分摊，餐饮按每天人均¥100计算。</p></div>
-        <div className="budget-overview"><div><Money size={32} weight="duotone" /><small>当前已列 · 人均</small><strong>¥{perPersonBudget.toLocaleString("zh-CN")}</strong></div><p>建议另留约10%—15%机动金，用于市内接驳、临时加餐和价格波动。</p></div>
+        <div className="section-heading budget-heading"><p className="eyebrow">TRAVEL BUDGET</p><h2 id="budget-title">旅行预算</h2></div>
+        <div className="budget-overview">
+          <figure className="budget-visual"><img src={assetUrl("/assets/city-qingdao.png")} alt="青岛海岸旅行预算视觉图" /><div className="budget-visual-shade" /><figcaption><span>25 DAYS · 8 CITIES</span><strong>把预算留给真正心动的风景</strong></figcaption></figure>
+          <div className="budget-total"><Money size={36} weight="duotone" /><small>当前已列 · 人均</small><strong>¥{perPersonBudget.toLocaleString("zh-CN")}</strong></div>
+          <p className="budget-advice"><Wallet size={30} weight="duotone" /><span><strong>机动金建议</strong>另留约10%—15%，用于市内接驳、临时加餐和价格波动。</span></p>
+        </div>
         <div className="budget-categories">
-          {budgetRows.map((item) => { const percent = Math.round(item.amount / perPersonBudget * 100); return <article key={item.label}><div className="budget-category-head"><span>{item.label}</span><strong>¥{item.amount.toLocaleString("zh-CN")}</strong></div><div className="budget-bar"><i style={{ width: `${percent}%` }} /></div><p>{percent}% · {item.note}</p></article>; })}
+          {budgetRows.map((item) => { const percent = Math.round(item.amount / perPersonBudget * 100); return <article key={item.label}><div className="budget-category-visual"><BudgetIcon label={item.label} size={86} /></div><div className="budget-category-head"><span>{item.label}</span><strong>¥{item.amount.toLocaleString("zh-CN")}</strong></div><div className="budget-bar"><i style={{ width: `${percent}%` }} /></div><p>{percent}% · {item.note}</p></article>; })}
         </div>
       </section>
 
       <footer>
-        <div><Compass size={26} weight="duotone" /><span><strong>午夜海岸线</strong><small>公开旅行攻略 · 更新于2026-07-11</small></span></div>
-        <p>图片为授权素材与生成视觉；价格均为查询基线，不代表锁价。海岛行程以天气和停航公告为准。</p>
+        <div><Compass size={26} weight="duotone" /><span><strong>车立子的个人旅游网站</strong><small>个人旅行攻略 · 更新于2026-07-12</small></span></div>
+        <p className="footer-contact">小红书：<strong>@车立子</strong></p>
         <a href="#top">回到顶部 <ArrowUpIcon /></a>
       </footer>
     </main>
