@@ -18,7 +18,6 @@ import {
   MoonStars,
   Train,
   Ticket,
-  UsersThree,
   Wallet,
 } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
@@ -261,7 +260,7 @@ export default function Home() {
           <a href="#food">必吃美食</a>
           <a href="#budget">旅行预算</a>
         </nav>
-        <div className="trip-meta"><CalendarBlank size={18} /><span>2026.07.20</span><i /><span>25天24晚</span><i /><UsersThree size={19} /><span>2人同行</span></div>
+        <div className="trip-meta"><CalendarBlank size={18} /><span>2026.07.20</span><i /><span>25天24晚</span></div>
       </header>
 
       <section id="top" className="hero" aria-labelledby="hero-title">
